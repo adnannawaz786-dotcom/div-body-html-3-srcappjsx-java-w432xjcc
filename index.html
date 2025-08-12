@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MP3 Player - Audio Streaming & Upload</title>
+    <meta name="description" content="Modern MP3 player with file upload, playlist management, and local storage support" />
+    
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    
+    <!-- Theme color for mobile browsers -->
+    <meta name="theme-color" content="#1f2937" />
+    
+    <!-- Open Graph meta tags -->
+    <meta property="og:title" content="MP3 Player - Audio Streaming & Upload" />
+    <meta property="og:description" content="Modern MP3 player with file upload, playlist management, and local storage support" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Twitter Card meta tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MP3 Player - Audio Streaming & Upload" />
+    <meta name="twitter:description" content="Modern MP3 player with file upload, playlist management, and local storage support" />
+    
+    <!-- Prevent FOUC (Flash of Unstyled Content) -->
+    <style>
+      html {
+        visibility: hidden;
+        opacity: 0;
+      }
+    </style>
+    
+    <!-- Loading animation styles -->
+    <style>
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease-out;
+      }
+      
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .loading-text {
+        color: white;
+        margin-top: 20px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 text-white font-sans antialiased">
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <div class="text-center">
+        <div class="loading-spinner mx-auto"></div>
+        <div class="loading-text">Loading Audio Player...</div>
+      </div>
+    </div>
+    
+    <!-- Main App Container -->
+    <div id="root" class="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
+      <!-- Fallback content for when JavaScript is disabled -->
+      <noscript>
+        <div class="flex items-center justify-center min-h-screen">
+          <div class="text-center p-8 bg-white/10 backdrop-blur-md rounded-lg border border-white/20">
+            <h1 class="text-2xl font-bold mb-4">JavaScript Required</h1>
+            <p class="text-gray-300">
+              This MP3 player requires JavaScript to function properly. 
+              Please enable JavaScript in your browser and refresh the page.
+            </p>
+          </div>
+        </div>
+      </noscript>
+    </div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      // Register service worker for offline functionality
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+      
+      // Hide loading screen once the page is loaded
+      window.addEventListener('load', () => {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          setTimeout(() => {
+            loadingScreen.style.opacity = '0';
+            setTimeout(() => {
+              loadingScreen.style.display = 'none';
+              document.documentElement.style.visibility = 'visible';
+              document.documentElement.style.opacity = '1';
+            }, 500);
+          }, 1000);
+        }
+      });
+      
+      // Prevent FOUC by showing content after DOM is ready
+      document.addEventListener('DOMContentLoaded', () => {
+        document.documentElement.style.visibility = 'visible';
+        document.documentElement.style.opacity = '1';
+      });
+      
+      // Global error handling
+      window.addEventListener('error', (event) => {
+        console.error('Global error:', event.error);
+        // You could send this to an error reporting service
+      });
+      
+      window.addEventListener('unhandledrejection', (event) => {
+        console.error('Unhandled promise rejection:', event.reason);
+        // You could send this to an error reporting service
+      });
+    </script>
+    
+    <!-- Vite Script -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
